@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Go Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <h1>Go Pro</h1>
+        <a href="profile.html" class="profile-icon">
+            <i class="fas fa-user-circle"></i>
+        </a>
+    </div>
+
+    <div class="container">
+        <h2>Select Your Plan</h2>
+        <div class="plans">
+            <div class="plan-card">
+                <h3>Beginner</h3>
+                <p class="price">$10/month</p>
+                <ul>
+                    <li>Access to basic features</li>
+                    <li>Weekly tips and articles</li>
+                    <li>Dietician support</li>
+                </ul>
+                <button class="subscribe-button" data-plan="Beginner" data-price="10">Subscribe</button>
+            </div>
+
+            <div class="plan-card">
+                <h3>Intermediate</h3>
+                <p class="price">$20/month</p>
+                <ul>
+                    <li>All Beginner features</li>
+                    <li>Personalized meal plans</li>
+                    <li>Priority support from Dietician</li>
+                </ul>
+                <button class="subscribe-button" data-plan="Intermediate" data-price="20">Subscribe</button>
+            </div>
+
+            <div class="plan-card">
+                <h3>Advanced</h3>
+                <p class="price">$30/month</p>
+                <ul>
+                    <li>All Intermediate features</li>
+                    <li>One-on-one consultations</li>
+                    <li>Exclusive content and resources</li>
+                </ul>
+                <button class="subscribe-button" data-plan="Advanced" data-price="30">Subscribe</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <a href="home.html">
+            <span class="icon"><i class="fas fa-home"></i></span>
+            <span>Home</span>
+        </a>
+        <a href="goals.html">
+            <span class="icon"><i class="fas fa-bullseye"></i></span>
+            <span>Adjust Goals</span>
+        </a>
+        <a href="premium.html" class="active">
+            <span class="icon"><i class="fas fa-star"></i></span>
+            <span>Go Pro</span>
+        </a>
+        <a href="ask.html">
+            <span class="icon"><i class="fas fa-question-circle"></i></span>
+            <span>Ask</span>
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const subscribeButtons = document.querySelectorAll('.subscribe-button');
+            
+            subscribeButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const planName = this.dataset.plan;
+                    const price = this.dataset.price;
+
+                    const confirm = window.confirm(`You have selected the ${planName} plan for $${price}/month. Do you want to proceed to payment?`);
+                    if (confirm) {
+                        // Call the payment function
+                        processPayment(planName, price);
+                    } else {
+                        alert("Subscription canceled.");
+                    }
+                });
+            });
+        });
+
+        function processPayment(planName, price) {
+            // Simulating a payment process
+            setTimeout(() => {
+                // Here you would typically call your payment processing API
+                alert(`Payment of $${price} for the ${planName} plan was successful! Thank you for subscribing!`);
+            }, 1000); // Simulate a delay for the payment processing
+        }
+    </script>
+</body>
+</html>

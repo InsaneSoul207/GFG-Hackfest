@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>NutriScan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+</head>
+<style>.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #1e1e1e;
+    color: white;
+}
+
+.header .logo img {
+    height: 50px;  /* Adjust height as needed */
+    width: auto;
+}
+
+.profile-icon {
+    font-size: 30px;
+    color: white;
+}
+</style>
+<body>
+    <div class="header">
+        <a href="home.html" class="logo">
+            <img src="logo.png" alt="App Logo" />
+        </a>
+        <h1>Welcome Back!</h1>
+        <a href="profile.html" class="profile-icon">
+            <i class="fas fa-user-circle"></i>
+        </a>
+    </div>
+    <div class="container">
+        <p>Scan a product's nutritional label below:</p>
+        <button class="scan-btn" id="open-camera-btn" onclick="openCamera()"><i class="fas fa-camera"></i> Scan Nutrition Label</button>
+
+        <video id="camera-stream" autoplay style="display:none;"></video>
+        <canvas id="snapshot" style="display:none;"></canvas>
+        <button id="capture-btn" style="display:none;" onclick="captureImage()">Capture</button>
+
+        <div class="preference-meter">
+            <div class="meter-bar">
+                <div class="meter-fill" id="meter-fill"></div>
+            </div>
+            <div class="meter-text" id="meter-text">Your preference meter will show here...</div>
+        </div>
+
+        <div class="action-buttons"><br>
+            <button class="btn" onclick="showMoreDetails()">More Details</button><br>
+            <button class="btn" onclick="showRecommendations()">Recommendations</button><br>
+            <button class="btn" onclick="redirectToDietician()">Dietician</button><br>
+        </div>
+
+        <div id="product-details" style="display:none;">
+            <h3>Product Details</h3>
+            <p id="details-content">Details will be shown here...</p>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <a href="home.html" class="active">
+            <span class="icon"><i class="fas fa-home"></i></span>
+            <span>Home</span>
+        </a>
+        <a href="goals.html">
+            <span class="icon"><i class="fas fa-bullseye"></i></span>
+            <span>Adjust Goals</span>
+        </a>
+        <a href="premium.html">
+            <span class="icon"><i class="fas fa-star"></i></span>
+            <span>Go Pro</span>
+        </a>
+        <a href="ask.html">
+            <span class="icon"><i class="fas fa-question-circle"></i></span>
+            <span>Ask</span>
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4"></script>
+    <script>
+        const userGoal = 'muscle gain'; // Dummy user goal constant
+        const nutritionalThresholds = {
+            'muscle gain': {
+                calories: 250,
+                totalFat: 7,
+                totalCarbohydrates: 30,
+                dietaryFiber: 3,
+                sugars: 5,
+                protein: 15
+            },
+            'fat loss': {
+                calories: 180,
+                totalFat: 5,
+                totalCarbohydrates: 15,
+                dietaryFiber: 3.5,
+                sugars: 3,
+                protein: 12
+            },
+            // Additional goals can be added here
+        };
+
+        let video = document.getElementById('camera-stream');
+        let canvas = document.getElementById('snapshot');
+        let context = canvas.getContext('2d');
+        let captureButton = document.getElementById('capture-btn');
+        
+        let nutrition = { // Declare nutrition as a global variable
+            calories: 0,
+            totalFat: 0,
+            totalCarbohydrates: 0,
+            sugars: 0,
+            dietaryFibers: 0,
+            protein: 0
+        };
+
+        function openCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                    video.style.display = 'block'; 
+                    captureButton.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error accessing the camera', error);
+                    alert('Unable to access the camera. Please check your camera permissions.');
+                });
+        }
+
+        function captureImage() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageDataURL = canvas.toDataURL('image/png');
+            let stream = video.srcObject;
+            let tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            video.style.display = 'none';
+            captureButton.style.display = 'none';
+
+            Tesseract.recognize(
+                imageDataURL,
+                'eng', 
+                {
+                    logger: info => console.log(info),
+                }
+            ).then(({ data: { text } }) => {
+                console.log('Extracted Text: ', text);
+                analyzeLabelText(text);
+            });
+        }
+
+        function analyzeLabelText(text) {
+            // Reset nutrition values
+            nutrition = {
+                calories: 0,
+                totalFat: 0,
+                totalCarbohydrates: 0,
+                sugars: 0,
+                dietaryFibers: 0,
+                protein: 0
+            };
+
+            const patterns = {
+                calories: /Calories:\s*(\d+)/i,
+                totalFat: /Total Fat:\s*([\d.]+)g/i,
+                totalCarbohydrates: /Total Carbohydrates:\s*(\d+)g/i,
+                sugars: /Sugars:\s*(\d+)g/i,
+                dietaryFibers: /Dietary Fiber:\s*(\d+)g/i,
+                protein: /Protein:\s*(\d+)g/i
+            };
+
+            for (let key in patterns) {
+                const match = text.match(patterns[key]);
+                if (match) {
+                    nutrition[key] = parseFloat(match[1]);
+                }
+            }
+
+            let preferenceScore = 100;
+
+            // Adjust score based on nutritional content and user goal
+            if (userGoal === 'muscle gain') {
+                if (nutrition.totalFat > nutritionalThresholds['muscle gain'].totalFat) preferenceScore -= 10;
+                if (nutrition.sugars > nutritionalThresholds['muscle gain'].sugars) preferenceScore -= 20;
+                if (nutrition.dietaryFibers < nutritionalThresholds['muscle gain'].dietaryFiber) preferenceScore -= 10;
+                if (nutrition.protein < nutritionalThresholds['muscle gain'].protein) preferenceScore -= 15;
+
+            } else if (userGoal === 'fat loss') {
+                if (nutrition.calories > nutritionalThresholds['fat loss'].calories) preferenceScore -= 20;
+                if (nutrition.totalFat > nutritionalThresholds['fat loss'].totalFat) preferenceScore -= 15;
+                if (nutrition.sugars > nutritionalThresholds['fat loss'].sugars) preferenceScore -= 20;
+                if (nutrition.dietaryFibers < nutritionalThresholds['fat loss'].dietaryFiber) preferenceScore -= 10;
+                if (nutrition.protein < nutritionalThresholds['fat loss'].protein) preferenceScore -= 15;
+            }
+
+            // Set the preference meter based on score
+            if (preferenceScore > 70) {
+                document.getElementById('meter-fill').style.width = '90%';
+                document.getElementById('meter-text').innerText = 'High preference!';
+            } else if (preferenceScore > 40) {
+                document.getElementById('meter-fill').style.width = '60%';
+                document.getElementById('meter-text').innerText = 'Moderate preference!';
+            } else {
+                document.getElementById('meter-fill').style.width = '30%';
+                document.getElementById('meter-text').innerText = 'Low preference!';
+            }
+        }
+
+        function showMoreDetails() {
+            const detailsDiv = document.getElementById('product-details');
+            const detailsContent = document.getElementById('details-content');
+            detailsContent.innerText = `Nutritional Values: 
+            Calories: ${nutrition.calories} 
+            Total Fat: ${nutrition.totalFat}g
+            Total Carbohydrates: ${nutrition.totalCarbohydrates}g 
+            Sugars: ${nutrition.sugars}g 
+            Dietary Fiber: ${nutrition.dietaryFibers}g 
+            Protein: ${nutrition.protein}g`;
+            detailsDiv.style.display = 'block';
+        }
+
+        function showRecommendations() {
+            // Implement recommendation logic based on user's goal
+            alert('Recommendations based on your goal will be shown here.');
+        }
+
+        function redirectToDietician() {
+            window.location.href = "payment.html";
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>body {
+        background-color: #121212; /* Dark background */
+        color: #e0e0e0; /* Light text color */
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header {
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #1f1f1f; /* Header background */
+    }
+
+    .container {
+        padding: 20px;
+        max-width: 600px; /* Limit max width for better readability */
+        margin: auto; /* Center the container */
+    }
+
+    .profile-info {
+        background-color: #2a2a2a; /* Profile info background */
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow */
+    }
+
+    h2 {
+        margin-top: 0; /* Remove margin for the heading */
+    }
+
+    .info-item {
+        margin-bottom: 10px; /* Space between items */
+    }
+
+    .info-item label {
+        font-weight: bold; /* Bold labels */
+    }
+
+    #edit-button {
+        margin-top: 15px;
+        background-color: #00796b; /* Button background */
+        color: #ffffff; /* Button text color */
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%; /* Full width for the button */
+    }
+
+    #edit-button:hover {
+        background-color: #005f54; /* Darker shade on hover */
+    }</style>
+</head>
+<body>
+    <div class="header">
+        <h1>User Profile</h1>
+        <a href="home.html" class="profile-icon">
+            <i class="fas fa-user-circle"></i>
+        </a>
+    </div>
+    
+    <div class="container">
+        <div class="profile-info">
+            <h2>Profile Details</h2>
+            <div class="info-item">
+                <label for="name">Name:</label>
+                <span id="name">John Doe</span>
+            </div>
+            <div class="info-item">
+                <label for="gender">Gender:</label>
+                <span id="gender">Male</span>
+            </div>
+            <div class="info-item">
+                <label for="age">Age:</label>
+                <span id="age">28</span>
+            </div>
+            <div class="info-item">
+                <label for="height">Height:</label>
+                <span id="height">180 cm</span>
+            </div>
+            <div class="info-item">
+                <label for="weight">Weight:</label>
+                <span id="weight">75 kg</span>
+            </div>
+            <div class="info-item">
+                <label for="goal">Goal:</label>
+                <span id="goal">Muscle Gain</span>
+            </div>
+        </div>
+
+        <button id="edit-button">Edit Profile</button>
+    </div>
+
+    <div class="nav-bar">
+        <a href="home.html">
+            <span class="icon"><i class="fas fa-home"></i></span>
+            <span>Home</span>
+        </a>
+        <a href="goals.html">
+            <span class="icon"><i class="fas fa-bullseye"></i></span>
+            <span>Adjust Goals</span>
+        </a>
+        <a href="premium.html">
+            <span class="icon"><i class="fas fa-star"></i></span>
+            <span>Go Pro</span>
+        </a>
+        <a href="ask.html">
+            <span class="icon"><i class="fas fa-question-circle"></i></span>
+            <span>Ask</span>
+        </a>
+    </div>
+
+    <script>
+        // Function to load profile data from localStorage
+        function loadProfile() {
+            const profileData = JSON.parse(localStorage.getItem('profile'));
+
+            if (profileData) {
+                document.getElementById('name').innerText = profileData.name;
+                document.getElementById('gender').innerText = profileData.gender;
+                document.getElementById('age').innerText = profileData.age;
+                document.getElementById('height').innerText = profileData.height;
+                document.getElementById('weight').innerText = profileData.weight;
+                document.getElementById('goal').innerText = profileData.goal;
+            }
+        }
+
+        // Load profile data on page load
+        document.addEventListener('DOMContentLoaded', loadProfile);
+        
+        // Edit button functionality
+        document.getElementById('edit-button').addEventListener('click', () => {
+            window.location.href = 'edit_profile.html'; // Redirect to edit profile page
+        });
+    </script>
+</body>
+</html>
