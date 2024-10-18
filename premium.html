@@ -83,8 +83,7 @@
 
                     const confirm = window.confirm(`You have selected the ${planName} plan for $${price}/month. Do you want to proceed to payment?`);
                     if (confirm) {
-                        // Call the payment function
-                        processPayment(planName, price);
+                        window.location.href = "payment.html";
                     } else {
                         alert("Subscription canceled.");
                     }
@@ -92,13 +91,6 @@
             });
         });
 
-        function processPayment(planName, price) {
-            // Simulating a payment process
-            setTimeout(() => {
-                // Here you would typically call your payment processing API
-                alert(`Payment of $${price} for the ${planName} plan was successful! Thank you for subscribing!`);
-            }, 1000); // Simulate a delay for the payment processing
-        }
     </script>
 </body>
 </html>

@@ -129,7 +129,7 @@
 </head>
 <body>
     <div class="header">
-        <h1 id="dietician-name">Chat with Dietician</h1>
+        <h1 id="dietician-name">Chat with Your Dietician</h1>
         <a href="profile.html" class="profile-icon">
             <i class="fas fa-user-circle"></i>
         </a>
@@ -165,8 +165,8 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const dieticianName = urlParams.get('dietician');
-
-        document.getElementById('dietician-name').textContent = `Chat with ${dieticianName}`;
+        
+        // document.getElementById('dietician-name').textContent = `Chat with ${dieticianName}`;
 
         function addMessage(content, sender) {
             const messagesContainer = document.getElementById('messages');

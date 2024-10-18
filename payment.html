@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        h1 {
+            margin-top: 80px;
+            font-size: 32px;
+        }
+
+        .qr-code {
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 10px;
+            display: inline-block;
+        }
+
+        .qr-code img {
+            width: 200px;
+            height: 200px;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .done-btn {
+            margin-top: 30px;
+            padding: 15px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .done-btn:hover {
+            background-color: #45a049;
+        }
+
+        /* Circular back button with arrow */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            outline: none;
+        }
+
+        .back-btn:hover {
+            background-color: #e53935;
+        }
+
+        .back-btn i {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Circular Back Button -->
+    <button class="back-btn" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <div class="container">
+        <h1>Make Your Payment</h1>
+        <div class="qr-code">
+            <img src="QR.png" alt="QR Code">
+        </div>
+        <p class="instructions">Scan the QR code with your payment app and complete the payment.</p>
+        <button class="done-btn" onclick="paymentDone()">Done</button>
+    </div>
+
+    <script>
+        // Function to handle payment completion
+        function paymentDone() {
+            // Simulate payment verification process (in a real app, this would check for actual payment confirmation)
+            alert("Payment successful! Redirecting to the next page...");
+
+            // Redirect to the next page (replace 'next-page.html' with your actual next page URL)
+            window.location.href = 'index.html';
+        }
+
+        // Back button functionality
+        function goBack() {
+            // Redirect to the previous page
+            window.history.back();
+        }
+    </script>
+
+    <!-- FontAwesome for arrow icon -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+</body>
+
+</html>

@@ -155,10 +155,14 @@
             });
         }
 
-        // Redirect to chat page with the selected dietician
         function redirectToChat(index) {
-            // Redirecting to the chat page with the dietician's name as a query parameter
-            window.location.href = `chat.html?dietician=${encodeURIComponent(dieticians[index].name)}`;
+            // Redirecting to the payments page
+            window.location.href = `chatpayment.html?dietician=${encodeURIComponent(dieticians[index].name)}`;
+
+            // Set a timeout to redirect to the chat page after a few seconds
+            setTimeout(() => {
+                window.location.href = `chat.html?dietician=${encodeURIComponent(dieticians[index].name)}`;
+            }, 3000); // Adjust the delay (3000 milliseconds = 3 seconds) as needed
         }
 
         // Call the function to render dieticians on page load
