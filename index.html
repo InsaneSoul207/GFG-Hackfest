@@ -122,17 +122,22 @@
         };
 
         function openCamera() {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    video.srcObject = stream;
-                    video.style.display = 'block'; 
-                    captureButton.style.display = 'block';
-                })
-                .catch(error => {
-                    console.error('Error accessing the camera', error);
-                    alert('Unable to access the camera. Please check your camera permissions.');
-                });
+            // Request access to the user's back camera (environment-facing)
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { exact: "environment" } } // Request back camera
+            })
+            .then(stream => {
+                // Display the video stream in the video element
+                video.srcObject = stream;
+                video.style.display = 'block';  // Show the video feed
+                captureButton.style.display = 'block'; // Show the capture button
+            })
+            .catch(error => {
+                console.error('Error accessing the camera', error);
+                alert('Unable to access the camera. Please check your camera permissions or if the device supports back camera access.');
+            });
         }
+
 
         function captureImage() {
             canvas.width = video.videoWidth;
