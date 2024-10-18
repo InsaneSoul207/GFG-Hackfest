@@ -9,25 +9,28 @@
     <link rel="shortcut icon" href="logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 </head>
-<style>.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background-color: #1e1e1e;
-    color: white;
-}
+<style>
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background-color: #1e1e1e;
+        color: white;
+    }
 
-.header .logo img {
-    height: 50px;  /* Adjust height as needed */
-    width: auto;
-}
+    .header .logo img {
+        height: 50px;
+        /* Adjust height as needed */
+        width: auto;
+    }
 
-.profile-icon {
-    font-size: 30px;
-    color: white;
-}
+    .profile-icon {
+        font-size: 30px;
+        color: white;
+    }
 </style>
+
 <body>
     <div class="header">
         <a href="home.html" class="logo">
@@ -40,7 +43,8 @@
     </div>
     <div class="container">
         <p>Scan a product's nutritional label below:</p>
-        <button class="scan-btn" id="open-camera-btn" onclick="openCamera()"><i class="fas fa-camera"></i> Scan Nutrition Label</button>
+        <button class="scan-btn" id="open-camera-btn" onclick="openCamera()"><i class="fas fa-camera"></i> Scan
+            Nutrition Label</button>
 
         <video id="camera-stream" autoplay style="display:none;"></video>
         <canvas id="snapshot" style="display:none;"></canvas>
@@ -111,7 +115,7 @@
         let canvas = document.getElementById('snapshot');
         let context = canvas.getContext('2d');
         let captureButton = document.getElementById('capture-btn');
-        
+
         let nutrition = { // Declare nutrition as a global variable
             calories: 0,
             totalFat: 0,
@@ -122,17 +126,22 @@
         };
 
         function openCamera() {
-            navigator.mediaDevices.getUserMedia({ video: true })
+            // Request access to the user's back camera (environment-facing)
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { exact: "environment" } } // Request back camera
+            })
                 .then(stream => {
+                    // Display the video stream in the video element
                     video.srcObject = stream;
-                    video.style.display = 'block'; 
-                    captureButton.style.display = 'block';
+                    video.style.display = 'block';  // Show the video feed
+                    captureButton.style.display = 'block'; // Show the capture button
                 })
                 .catch(error => {
                     console.error('Error accessing the camera', error);
-                    alert('Unable to access the camera. Please check your camera permissions.');
+                    alert('Unable to access the camera. Please check your camera permissions or if the device supports back camera access.');
                 });
         }
+
 
         function captureImage() {
             canvas.width = video.videoWidth;
@@ -147,7 +156,7 @@
 
             Tesseract.recognize(
                 imageDataURL,
-                'eng', 
+                'eng',
                 {
                     logger: info => console.log(info),
                 }
