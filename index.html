@@ -41,7 +41,17 @@
             <i class="fas fa-user-circle"></i>
         </a>
     </div>
+
     <div class="container">
+        <div class="goal-selector">
+            <label for="user-goal">Select Your Goal:</label>
+            <select id="user-goal" onchange="updateUserGoal()">
+                <option value="muscle gain">Muscle Gain</option>
+                <option value="fat loss">Fat Loss</option>
+                <!-- Add more goals as needed -->
+            </select>
+        </div>
+
         <p>Scan a product's nutritional label below:</p>
         <button class="scan-btn" id="open-camera-btn" onclick="openCamera()"><i class="fas fa-camera"></i> Scan
             Nutrition Label</button>
@@ -90,7 +100,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4"></script>
     <script>
-        const userGoal = 'muscle gain'; // Dummy user goal constant
+        let userGoal = 'muscle gain'; // Default user goal
         const nutritionalThresholds = {
             'muscle gain': {
                 calories: 250,
@@ -111,12 +121,18 @@
             // Additional goals can be added here
         };
 
+        function updateUserGoal() {
+            const goalDropdown = document.getElementById('user-goal');
+            userGoal = goalDropdown.value; // Update user goal based on selection
+            console.log('User Goal:', userGoal);
+        }
+
         let video = document.getElementById('camera-stream');
         let canvas = document.getElementById('snapshot');
         let context = canvas.getContext('2d');
         let captureButton = document.getElementById('capture-btn');
 
-        let nutrition = { // Declare nutrition as a global variable
+        let nutrition = {
             calories: 0,
             totalFat: 0,
             totalCarbohydrates: 0,
@@ -126,37 +142,19 @@
         };
 
         function openCamera() {
-            // Request access to the user's back camera (environment-facing)
             navigator.mediaDevices.getUserMedia({
                 video: { facingMode: { exact: "environment" } } // Request back camera
             })
             .then(stream => {
-                // Display the video stream in the video element
                 video.srcObject = stream;
-                video.style.display = 'block';  // Show the video feed
-                captureButton.style.display = 'block'; // Show the capture button
+                video.style.display = 'block';
+                captureButton.style.display = 'block';
             })
             .catch(error => {
                 console.error('Error accessing the camera', error);
                 alert('Unable to access the camera. Please check your camera permissions or if the device supports back camera access.');
             });
-            // Request access to the user's back camera (environment-facing)
-            navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { exact: "environment" } } // Request back camera
-            })
-                .then(stream => {
-                    // Display the video stream in the video element
-                    video.srcObject = stream;
-                    video.style.display = 'block';  // Show the video feed
-                    captureButton.style.display = 'block'; // Show the capture button
-                })
-                .catch(error => {
-                    console.error('Error accessing the camera', error);
-                    alert('Unable to access the camera. Please check your camera permissions or if the device supports back camera access.');
-                });
         }
-
-
 
         function captureImage() {
             canvas.width = video.videoWidth;
@@ -182,7 +180,6 @@
         }
 
         function analyzeLabelText(text) {
-            // Reset nutrition values
             nutrition = {
                 calories: 0,
                 totalFat: 0,
@@ -202,62 +199,51 @@
             };
 
             for (let key in patterns) {
-                const match = text.match(patterns[key]);
+                let match = text.match(patterns[key]);
                 if (match) {
                     nutrition[key] = parseFloat(match[1]);
                 }
             }
 
-            let preferenceScore = 100;
+            calculatePreference();
+        }
 
-            // Adjust score based on nutritional content and user goal
-            if (userGoal === 'muscle gain') {
-                if (nutrition.totalFat > nutritionalThresholds['muscle gain'].totalFat) preferenceScore -= 10;
-                if (nutrition.sugars > nutritionalThresholds['muscle gain'].sugars) preferenceScore -= 20;
-                if (nutrition.dietaryFibers < nutritionalThresholds['muscle gain'].dietaryFiber) preferenceScore -= 10;
-                if (nutrition.protein < nutritionalThresholds['muscle gain'].protein) preferenceScore -= 15;
+        function calculatePreference() {
+            let thresholds = nutritionalThresholds[userGoal];
+            let score = 0;
+            let maxScore = 6; // 6 fields in the thresholds
 
-            } else if (userGoal === 'fat loss') {
-                if (nutrition.calories > nutritionalThresholds['fat loss'].calories) preferenceScore -= 20;
-                if (nutrition.totalFat > nutritionalThresholds['fat loss'].totalFat) preferenceScore -= 15;
-                if (nutrition.sugars > nutritionalThresholds['fat loss'].sugars) preferenceScore -= 20;
-                if (nutrition.dietaryFibers < nutritionalThresholds['fat loss'].dietaryFiber) preferenceScore -= 10;
-                if (nutrition.protein < nutritionalThresholds['fat loss'].protein) preferenceScore -= 15;
-            }
+            score += nutrition.calories <= thresholds.calories ? 1 : 0;
+            score += nutrition.totalFat <= thresholds.totalFat ? 1 : 0;
+            score += nutrition.totalCarbohydrates <= thresholds.totalCarbohydrates ? 1 : 0;
+            score += nutrition.dietaryFibers >= thresholds.dietaryFiber ? 1 : 0;
+            score += nutrition.sugars <= thresholds.sugars ? 1 : 0;
+            score += nutrition.protein >= thresholds.protein ? 1 : 0;
 
-            // Set the preference meter based on score
-            if (preferenceScore > 70) {
-                document.getElementById('meter-fill').style.width = '90%';
-                document.getElementById('meter-text').innerText = 'High preference!';
-            } else if (preferenceScore > 40) {
-                document.getElementById('meter-fill').style.width = '60%';
-                document.getElementById('meter-text').innerText = 'Moderate preference!';
-            } else {
-                document.getElementById('meter-fill').style.width = '30%';
-                document.getElementById('meter-text').innerText = 'Low preference!';
-            }
+            let preferencePercent = (score / maxScore) * 100;
+            document.getElementById('meter-fill').style.width = `${preferencePercent}%`;
+            document.getElementById('meter-text').textContent = `This product matches ${preferencePercent.toFixed(0)}% of your goal preferences.`;
         }
 
         function showMoreDetails() {
-            const detailsDiv = document.getElementById('product-details');
-            const detailsContent = document.getElementById('details-content');
-            detailsContent.innerText = `Nutritional Values: 
-            Calories: ${nutrition.calories} 
-            Total Fat: ${nutrition.totalFat}g
-            Total Carbohydrates: ${nutrition.totalCarbohydrates}g 
-            Sugars: ${nutrition.sugars}g 
-            Dietary Fiber: ${nutrition.dietaryFibers}g 
-            Protein: ${nutrition.protein}g`;
-            detailsDiv.style.display = 'block';
+            const details = `
+                Calories: ${nutrition.calories} kcal,
+                Total Fat: ${nutrition.totalFat} g,
+                Total Carbohydrates: ${nutrition.totalCarbohydrates} g,
+                Sugars: ${nutrition.sugars} g,
+                Dietary Fibers: ${nutrition.dietaryFibers} g,
+                Protein: ${nutrition.protein} g
+            `;
+            document.getElementById('details-content').textContent = details;
+            document.getElementById('product-details').style.display = 'block';
         }
 
         function showRecommendations() {
-            // Implement recommendation logic based on user's goal
-            alert('Recommendations based on your goal will be shown here.');
+            alert("Product recommendations based on your goal will appear here.");
         }
 
         function redirectToDietician() {
-            window.location.href = "premium.html";
+            window.location.href = 'dietician.html';
         }
     </script>
 </body>
