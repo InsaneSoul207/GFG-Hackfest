@@ -44,7 +44,15 @@ um
     </div>
 
     <div class="container">
-        
+        <label for="user-goal">Select Your Goal:</label>
+            <select id="user-goal" onchange="updateUserGoal()">
+                <option value="" disabled selected>Select a goal</option>
+                <option value="muscle gain">Muscle Gain</option>
+                <option value="fat loss">Fat Loss</option>
+                <option value="weight maintenance">Weight Maintenance</option>
+                <option value="muscle building">Muscle Building</option>
+                <option value="keto">Keto</option>
+            </select>
 
         <p>Scan a product's nutritional label below:</p>
         <button class="scan-btn" id="open-camera-btn" onclick="openCamera()"><i class="fas fa-camera"></i> Scan
