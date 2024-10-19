@@ -1,4 +1,4 @@
-um<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -124,61 +124,28 @@ um<!DOCTYPE html>
                 sugars: 3,
                 protein: 12
             },
-            'balanced diet': {
-                calories: 200,
+            'weight maintenance': {
+                calories: 2000,
+                totalFat: 70,
+                totalCarbohydrates: 300,
+                dietaryFiber: 25,
+                sugars: 50,
+                protein: 50
+            },
+            'muscle building': {
+                calories: 300,
                 totalFat: 8,
-                totalCarbohydrates: 20,
+                totalCarbohydrates: 40,
                 dietaryFiber: 4,
                 sugars: 6,
-                protein: 10
+                protein: 20
             },
-            'keto diet': {
-                calories: 180,
+            'keto': {
+                calories: 200,
                 totalFat: 15,
                 totalCarbohydrates: 5,
-                dietaryFiber: 1,
-                sugars: 2,
-                protein: 10
-            },
-            'high protein diet': {
-                calories: 250,
-                totalFat: 8,
-                totalCarbohydrates: 20,
-                dietaryFiber: 3,
-                sugars: 4,
-                protein: 25
-            },
-            'low carb diet': {
-                calories: 150,
-                totalFat: 10,
-                totalCarbohydrates: 10,
                 dietaryFiber: 2,
-                sugars: 3,
-                protein: 15
-            },
-            'vegan diet': {
-                calories: 180,
-                totalFat: 6,
-                totalCarbohydrates: 30,
-                dietaryFiber: 5,
-                sugars: 5,
-                protein: 10
-            },
-            'low sodium diet': {
-                calories: 200,
-                totalFat: 8,
-                totalCarbohydrates: 25,
-                dietaryFiber: 4,
-                sugars: 4,
-                protein: 12,
-                sodium: 200  // Sodium in mg
-            },
-            'high fiber diet': {
-                calories: 220,
-                totalFat: 8,
-                totalCarbohydrates: 35,
-                dietaryFiber: 8,
-                sugars: 5,
+                sugars: 1,
                 protein: 10
             }
         };
@@ -207,15 +174,15 @@ um<!DOCTYPE html>
             navigator.mediaDevices.getUserMedia({
                 video: { facingMode: { exact: "environment" } } // Request back camera
             })
-            .then(stream => {
-                video.srcObject = stream;
-                video.style.display = 'block';
-                captureButton.style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error accessing the camera', error);
-                alert('Unable to access the camera. Please check your camera permissions or if the device supports back camera access.');
-            });
+                .then(stream => {
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    captureButton.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error accessing the camera', error);
+                    alert('Unable to access the camera. Please check your camera permissions or if the device supports back camera access.');
+                });
         }
 
         function captureImage() {
@@ -242,6 +209,7 @@ um<!DOCTYPE html>
         }
 
         function analyzeLabelText(text) {
+            // Reset nutrition values
             nutrition = {
                 calories: 0,
                 totalFat: 0,
@@ -261,33 +229,92 @@ um<!DOCTYPE html>
             };
 
             for (let key in patterns) {
-                let match = text.match(patterns[key]);
+                const match = text.match(patterns[key]);
                 if (match) {
                     nutrition[key] = parseFloat(match[1]);
                 }
             }
 
-            calculatePreference();
+            // Check for any nutrition value being 0 and alert the user
+            for (let key in nutrition) {
+                if (nutrition[key] === 0) {
+                    alert(`Warning: The value for ${key.replace(/([A-Z])/g, ' $1').toLowerCase()} is 0!`);
+                }
+            }
+
+            let preferenceScore = 100;
+
+            // Adjust score based on nutritional content for each goal
+            switch (userGoal) {
+                case 'muscle gain':
+                    if (nutrition.totalFat > nutritionalThresholds['muscle gain'].totalFat) preferenceScore -= 10;
+                    if (nutrition.sugars > nutritionalThresholds['muscle gain'].sugars) preferenceScore -= 20;
+                    if (nutrition.dietaryFibers < nutritionalThresholds['muscle gain'].dietaryFiber) preferenceScore -= 10;
+                    if (nutrition.protein < nutritionalThresholds['muscle gain'].protein) preferenceScore -= 15;
+                    break;
+                case 'fat loss':
+                    if (nutrition.calories > nutritionalThresholds['fat loss'].calories) preferenceScore -= 20;
+                    if (nutrition.totalFat > nutritionalThresholds['fat loss'].totalFat) preferenceScore -= 15;
+                    if (nutrition.sugars > nutritionalThresholds['fat loss'].sugars) preferenceScore -= 20;
+                    if (nutrition.dietaryFibers < nutritionalThresholds['fat loss'].dietaryFiber) preferenceScore -= 10;
+                    if (nutrition.protein < nutritionalThresholds['fat loss'].protein) preferenceScore -= 15;
+                    break;
+                case 'weight maintenance':
+                    if (nutrition.calories < nutritionalThresholds['weight maintenance'].calories) preferenceScore -= 15;
+                    if (nutrition.totalFat > nutritionalThresholds['weight maintenance'].totalFat) preferenceScore -= 10;
+                    if (nutrition.totalCarbohydrates < nutritionalThresholds['weight maintenance'].totalCarbohydrates) preferenceScore -= 20;
+                    if (nutrition.sugars > nutritionalThresholds['weight maintenance'].sugars) preferenceScore -= 15;
+                    if (nutrition.dietaryFibers < nutritionalThresholds['weight maintenance'].dietaryFiber) preferenceScore -= 10;
+                    break;
+                case 'muscle building':
+                    if (nutrition.calories < nutritionalThresholds['muscle building'].calories) preferenceScore -= 20;
+                    if (nutrition.totalFat < nutritionalThresholds['muscle building'].totalFat) preferenceScore -= 15;
+                    if (nutrition.sugars > nutritionalThresholds['muscle building'].sugars) preferenceScore -= 10;
+                    if (nutrition.dietaryFibers < nutritionalThresholds['muscle building'].dietaryFiber) preferenceScore -= 10;
+                    if (nutrition.protein < nutritionalThresholds['muscle building'].protein) preferenceScore -= 15;
+                    break;
+                case 'keto':
+                    if (nutrition.totalCarbohydrates > nutritionalThresholds['keto'].totalCarbohydrates) preferenceScore -= 25;
+                    if (nutrition.sugars > nutritionalThresholds['keto'].sugars) preferenceScore -= 20;
+                    if (nutrition.totalFat < nutritionalThresholds['keto'].totalFat) preferenceScore -= 15;
+                    if (nutrition.protein < nutritionalThresholds['keto'].protein) preferenceScore -= 10;
+                    break;
+                default:
+                    alert('Invalid goal selected!');
+                    break;
+            }
+
+            // Set the preference meter based on score
+            if (preferenceScore > 70) {
+                document.getElementById('meter-fill').style.width = preferenceScore+'%';
+                document.getElementById('meter-text').innerText = 'High preference!';
+            } else if (preferenceScore > 40) {
+                document.getElementById('meter-fill').style.width = preferenceScore+'%';
+                document.getElementById('meter-text').innerText = 'Moderate preference!';
+            } else {
+                document.getElementById('meter-fill').style.width = preferenceScore+'%';
+                document.getElementById('meter-text').innerText = 'Low preference!';
+            }
         }
 
         function calculatePreference() {
             let thresholds = nutritionalThresholds[userGoal];
             let score = 0;
             let maxScore = 6; // Adjust this if you add more fields to evaluate, like sodium
-        
+
             score += nutrition.calories <= thresholds.calories ? 1 : 0;
             score += nutrition.totalFat <= thresholds.totalFat ? 1 : 0;
             score += nutrition.totalCarbohydrates <= thresholds.totalCarbohydrates ? 1 : 0;
             score += nutrition.dietaryFibers >= thresholds.dietaryFiber ? 1 : 0;
             score += nutrition.sugars <= thresholds.sugars ? 1 : 0;
             score += nutrition.protein >= thresholds.protein ? 1 : 0;
-        
+
             // Optional: Add conditions for sodium if userGoal is 'low sodium diet'
             if (userGoal === 'low sodium diet' && thresholds.sodium) {
                 score += nutrition.sodium <= thresholds.sodium ? 1 : 0;
                 maxScore += 1; // Increase maxScore by 1 for the sodium parameter
             }
-        
+
             let preferencePercent = (score / maxScore) * 100;
             document.getElementById('meter-fill').style.width = `${preferencePercent}%`;
             document.getElementById('meter-text').textContent = `This product matches ${preferencePercent.toFixed(0)}% of your goal preferences.`;
