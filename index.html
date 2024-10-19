@@ -48,7 +48,13 @@
             <select id="user-goal" onchange="updateUserGoal()">
                 <option value="muscle gain">Muscle Gain</option>
                 <option value="fat loss">Fat Loss</option>
-                <!-- Add more goals as needed -->
+                <option value="balanced diet">Balanced Diet</option>
+                <option value="keto diet">Keto Diet</option>
+                <option value="high protein diet">High Protein Diet</option>
+                <option value="low carb diet">Low Carb Diet</option>
+                <option value="vegan diet">Vegan Diet</option>
+                <option value="low sodium diet">Low Sodium Diet</option>
+                <option value="high fiber diet">High Fiber Diet</option>
             </select>
         </div>
 
@@ -118,7 +124,63 @@
                 sugars: 3,
                 protein: 12
             },
-            // Additional goals can be added here
+            'balanced diet': {
+                calories: 200,
+                totalFat: 8,
+                totalCarbohydrates: 20,
+                dietaryFiber: 4,
+                sugars: 6,
+                protein: 10
+            },
+            'keto diet': {
+                calories: 180,
+                totalFat: 15,
+                totalCarbohydrates: 5,
+                dietaryFiber: 1,
+                sugars: 2,
+                protein: 10
+            },
+            'high protein diet': {
+                calories: 250,
+                totalFat: 8,
+                totalCarbohydrates: 20,
+                dietaryFiber: 3,
+                sugars: 4,
+                protein: 25
+            },
+            'low carb diet': {
+                calories: 150,
+                totalFat: 10,
+                totalCarbohydrates: 10,
+                dietaryFiber: 2,
+                sugars: 3,
+                protein: 15
+            },
+            'vegan diet': {
+                calories: 180,
+                totalFat: 6,
+                totalCarbohydrates: 30,
+                dietaryFiber: 5,
+                sugars: 5,
+                protein: 10
+            },
+            'low sodium diet': {
+                calories: 200,
+                totalFat: 8,
+                totalCarbohydrates: 25,
+                dietaryFiber: 4,
+                sugars: 4,
+                protein: 12,
+                sodium: 200  // Sodium in mg
+            },
+            'high fiber diet': {
+                calories: 220,
+                totalFat: 8,
+                totalCarbohydrates: 35,
+                dietaryFiber: 8,
+                sugars: 5,
+                protein: 10
+            }
         };
 
         function updateUserGoal() {
@@ -211,20 +273,25 @@
         function calculatePreference() {
             let thresholds = nutritionalThresholds[userGoal];
             let score = 0;
-            let maxScore = 6; // 6 fields in the thresholds
-
+            let maxScore = 6; // Adjust this if you add more fields to evaluate, like sodium
+        
             score += nutrition.calories <= thresholds.calories ? 1 : 0;
             score += nutrition.totalFat <= thresholds.totalFat ? 1 : 0;
             score += nutrition.totalCarbohydrates <= thresholds.totalCarbohydrates ? 1 : 0;
             score += nutrition.dietaryFibers >= thresholds.dietaryFiber ? 1 : 0;
             score += nutrition.sugars <= thresholds.sugars ? 1 : 0;
             score += nutrition.protein >= thresholds.protein ? 1 : 0;
-
+        
+            // Optional: Add conditions for sodium if userGoal is 'low sodium diet'
+            if (userGoal === 'low sodium diet' && thresholds.sodium) {
+                score += nutrition.sodium <= thresholds.sodium ? 1 : 0;
+                maxScore += 1; // Increase maxScore by 1 for the sodium parameter
+            }
+        
             let preferencePercent = (score / maxScore) * 100;
             document.getElementById('meter-fill').style.width = `${preferencePercent}%`;
             document.getElementById('meter-text').textContent = `This product matches ${preferencePercent.toFixed(0)}% of your goal preferences.`;
         }
-
         function showMoreDetails() {
             const details = `
                 Calories: ${nutrition.calories} kcal,
